@@ -5,7 +5,7 @@ public extension Flock {
     static let Zewo: [Task] = [
         StopTask(),
         StartTask(),
-        ProcessTask()
+        PsTask()
     ]
 }
 
@@ -33,12 +33,12 @@ public class StartTask: Task {
     public func run(on server: Server) throws {
         print("Starting Zewo")
         try server.execute("nohup \(Paths.executable) > /dev/null 2>&1 &")
-        try invoke("zewo:list")
+        try invoke("zewo:ps")
     }
 }
 
-public class ProcessTask: Task {
-    public let name = "process"
+public class PsTask: Task {
+    public let name = "ps"
     public let namespace = zewo
     
     public func run(on server: Server) throws {
