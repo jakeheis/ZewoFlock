@@ -9,6 +9,11 @@ public extension Flock {
     ]
 }
 
+public extension Config {
+    static var outputLog = "/dev/null"
+    static var errorLog = "/dev/null"
+}
+
 let zewo = "zewo"
 
 public class StopTask: Task {
@@ -32,7 +37,7 @@ public class StartTask: Task {
     
     public func run(on server: Server) throws {
         print("Starting Zewo")
-        try server.execute("nohup \(Paths.executable) > /dev/null 2>&1 &")
+        try server.execute("nohup \(Paths.executable) >> \(Config.outputLog) 2>> \(Config.errorLog) &")
         try invoke("zewo:ps")
     }
 }
