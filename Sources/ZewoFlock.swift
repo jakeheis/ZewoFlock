@@ -42,8 +42,9 @@ public class StartTask: Task {
     public func run(on server: Server) throws {
         print("Starting Zewo")
         let coreCount: Int
-        if let coreCountOutput = try server.capture("nproc") {
-            coreCount = Int(coreCountOutput) ?? 1
+        if let coreCountOutput = try server.capture("nproc")?.trimmingCharacters(in: .whitespacesAndNewlines),
+            let coreCountValue = Int(coreCountOutput) {
+            coreCount = coreCountValue
         } else {
             coreCount = 1
         }
