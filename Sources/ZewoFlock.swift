@@ -2,89 +2,46 @@ import Flock
 import Foundation
 
 public extension Flock {
-    static let Zewo: [Task] = [
-        StopTask(),
-        StartTask(),
-        PsTask()
-    ]
+    static let Zewo: [Task] = SystemdTasks(provider: VaporSystemd()).createTasks()
 }
 
-public extension Config {
-    static var outputLog = "/dev/null"
-    static var errorLog = "/dev/null"
-}
-
-let zewo = "zewo"
-
-public class StopTask: Task {
-    public let name = "stop"
-    public let namespace = zewo
-    public let hookTimes: [HookTime] = [.before("deploy:link")]
+class VaporSystemd: SystemdProvider {
+    let name = "Zewo"
     
-    public func run(on server: Server) throws {
-        let pids = try findServerPids(on: server)
-        guard !pids.isEmpty else {
-            print("Zewo not running")
-            return
-        }
-        
-        for pid in pids {
-            try server.execute("kill -9 \(pid)")
+    var serviceFilePath: String {
+        return "/lib/systemd/system/\(namespace)@.service"
+    }
+    
+    func start(on server: Server) throws {
+        try executeForAllProcesses("start", on: server)
+    }
+    
+    func stop(on server: Server) throws {
+        try executeForAllProcesses("stop", on: server)
+    }
+    
+    func restart(on server: Server) throws {
+        try executeForAllProcesses("restart", on: server)
+    }
+    
+    func status(on server: Server) throws {
+        try executeForAllProcesses("status", on: server)
+    }
+    
+    func executeForAllProcesses(_ command: String, on server: Server) throws {
+        let count = try processCount(on: server)
+        for i in 0 ..< count {
+            try server.execute("service \(namespace)@\(i + 1) \(command)")
         }
     }
-}
-
-public class StartTask: Task {
-    public let name = "start"
-    public let namespace = zewo
-    public let hookTimes: [HookTime] = [.after("deploy:link")]
     
-    public func run(on server: Server) throws {
-        print("Starting Zewo")
-        let coreCount: Int
+    func processCount(on server: Server) throws -> Int {
         if let coreCountOutput = try server.capture("nproc")?.trimmingCharacters(in: .whitespacesAndNewlines),
-            let coreCountValue = Int(coreCountOutput) {
-            coreCount = coreCountValue
+            let coreCount = Int(coreCountOutput) {
+            return coreCount
         } else {
-            coreCount = 1
-        }
-        for _ in 0 ..< coreCount {
-            try server.execute("nohup \(Paths.executable) >> \(Config.outputLog) 2>> \(Config.errorLog) &")
-        }
-        try invoke("zewo:ps")
-    }
-}
-
-public class PsTask: Task {
-    public let name = "ps"
-    public let namespace = zewo
-    
-    public func run(on server: Server) throws {
-        let pids = try findServerPids(on: server)
-        if pids.isEmpty {
-            print("Zewo not running")
-        } else {
-            for pid in pids {
-                print("Zewo running as process \(pid)")
-            }
-        }
-    }
-}
-
-private func findServerPids(on server: Server) throws -> [String] {
-    guard let processes = try server.capture("ps aux | grep \".build\"") else {
-        return []
-    }
-    
-    var pids: [String] = []
-    
-    let lines = processes.components(separatedBy: "\n")
-    for line in lines where !line.contains("grep") {
-        let segments = line.components(separatedBy: " ").filter { !$0.isEmpty }
-        if segments.count > 1 {
-            pids.append(segments[1])
+            return 1
         }
     }
     
-    return pids
 }
