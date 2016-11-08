@@ -5,5 +5,6 @@ public extension Flock {
 }
 
 class ZewoSystemd: SystemdProvider {
-    let name = "Zewo"
+    let name = "zewo"
+    let serviceName = "zewo"
 }
