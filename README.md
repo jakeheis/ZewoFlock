@@ -20,7 +20,9 @@ import ZewoFlock
 
 ...
 
+Flock.use(Flock.Deploy)
 Flock.use(Flock.Zewo)
+// Remove `Flock.use(Flock.Server)`
 ```
 # Tasks
 ```
