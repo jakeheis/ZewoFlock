@@ -35,10 +35,10 @@ zewo:status
 # Configuration
 ```swift
 public extension Config {
-    // By default, resolved by Supervisord to something like /var/log/supervisor/zewo-0.out
+    // Default value; resolved by Supervisord to something like /var/log/supervisor/zewo-0.out
     static var outputLog = "/var/log/supervisor/%%(program_name)s-%%(process_num)s.out"
     
-    // By default, resolved by Supervisord to something like /var/log/supervisor/zewo-0.err
+    // Default value; resolved by Supervisord to something like /var/log/supervisor/zewo-0.err
     static var errorLog = "/var/log/supervisor/%%(program_name)s-%%(process_num)s.err"
 }
 ```
