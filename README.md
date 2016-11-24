@@ -32,3 +32,29 @@ zewo:start
 zewo:status
 ```
 `ZewoFlock` hooks into the deploy process to automatically restart the server after the new release is built, so you should never have to call these tasks directly.
+# Configuration
+```swift
+public extension Config {
+    // By default, resolved by Supervisord to something like /var/log/supervisor/zewo-0.out
+    static var outputLog = "/var/log/supervisor/%%(program_name)s-%%(process_num)s.out"
+    
+    // By default, resolved by Supervisord to something like /var/log/supervisor/zewo-0.err
+    static var errorLog = "/var/log/supervisor/%%(program_name)s-%%(process_num)s.err"
+}
+```
+In order to ensure, logging works correctly, you'll likely want to turn off output bufferring in `main.swift`:
+```swift
+#if os(Linux)
+import Glibc
+#else
+import Darwin
+#endif
+
+import HTTPServer
+
+setbuf(stdout, nil)
+setbuf(stderr, nil)
+
+let router = BasicRouter { route in
+...
+```
