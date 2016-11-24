@@ -12,7 +12,7 @@ class ZewoSupervisord: SupervisordProvider {
         var processCount = 1
         do {
             if let processCountString = try server.capture("nproc")?.trimmingCharacters(in: .whitespacesAndNewlines), 
-            let processCountInt = Int(processCountString) {
+                let processCountInt = Int(processCountString) {
                 processCount = processCountInt
             }
         } catch {}
@@ -24,6 +24,8 @@ class ZewoSupervisord: SupervisordProvider {
             "numprocs=\(processCount)",
             "autostart=false",
             "autorestart=unexpected",
+            "stdout_logfile=\(Config.outputLog)",
+            "stderr_logfile=\(Config.errorLog)",
             ""
         ].joined(separator: "\n")
     }
