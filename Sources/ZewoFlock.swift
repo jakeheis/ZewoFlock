@@ -11,7 +11,8 @@ class ZewoSupervisord: SupervisordProvider {
     func confFileContents(for server: Server) -> String {
         var processCount = 1
         do {
-            if let processCountString = try server.capture("nproc"), let processCountInt = Int(processCountString) {
+            if let processCountString = try server.capture("nproc")?.trimmingCharacters(in: .whitespacesAndNewlines), 
+            let processCountInt = Int(processCountString) {
                 processCount = processCountInt
             }
         } catch {}
