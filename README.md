@@ -9,7 +9,7 @@ Add these lines to `deploy/FlockDependencies.json`:
        ...
        {
            "url" : "https://github.com/jakeheis/ZewoFlock",
-           "version": "0.0.1"
+           "version": "0.0.3"
        }
 ]
 ```
