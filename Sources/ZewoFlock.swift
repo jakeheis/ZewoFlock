@@ -5,28 +5,20 @@ public extension Flock {
 }
 
 class ZewoSupervisord: SupervisordProvider {
-    let name = "zewo"
-    let programName = "zewo"
+    let taskNamespace = "zewo"
+    let supervisordName = Config.supervisordName ?? "zewo"
     
-    func confFileContents(for server: Server) -> String {
+    func confFile(for server: Server) -> SupervisordConfFile {
         var processCount = 1
         do {
-            if let processCountString = try server.capture("nproc")?.trimmingCharacters(in: .whitespacesAndNewlines), 
+            if let processCountString = try server.capture("nproc")?.trimmingCharacters(in: .whitespacesAndNewlines),
                 let processCountInt = Int(processCountString) {
                 processCount = processCountInt
             }
         } catch {}
         
-        return [
-            "[program:\(programName)]",
-            "command=\(Paths.executable)",
-            "process_name=%(process_num)s",
-            "numprocs=\(processCount)",
-            "autostart=false",
-            "autorestart=unexpected",
-            "stdout_logfile=\(Config.outputLog)",
-            "stderr_logfile=\(Config.errorLog)",
-            ""
-        ].joined(separator: "\n")
+        var file = SupervisordConfFile(programName: supervisordName)
+        file.numProcs = processCount
+        return file
     }
 }
