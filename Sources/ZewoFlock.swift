@@ -18,7 +18,7 @@ class ZewoSupervisord: SupervisordProvider {
         } catch {}
         
         var file = SupervisordConfFile(programName: supervisordName)
-        file.numProcs = processCount
+        file.add("numprocs=\(processCount)")
         return file
     }
 }
